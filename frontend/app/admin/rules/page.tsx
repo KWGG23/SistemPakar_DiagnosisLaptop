@@ -46,8 +46,8 @@ export default function AdminRulesPage() {
   const [selectedGejala, setSelectedGejala] = useState("");
   const [selectedKerusakan, setSelectedKerusakan] = useState("");
 
-  const createForm = useForm({ resolver: zodResolver(createSchema) });
-  const editForm = useForm({ resolver: zodResolver(editSchema) });
+  const createForm = useForm<z.infer<typeof createSchema>>({ resolver: zodResolver(createSchema) });
+  const editForm = useForm<z.infer<typeof editSchema>>({ resolver: zodResolver(editSchema) });
 
   async function load() {
     setLoading(true);
