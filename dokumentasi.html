@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dokumentasi — Sistem Pakar Diagnosis Kerusakan Laptop/PC</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #dbeafe;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+      --gray-900: #0f172a;
+      --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+      --sidebar-w: 260px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--gray-800);
+      background: var(--gray-50);
+    }
+
+    /* ===== SIDEBAR ===== */
+    #sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-w);
+      background: var(--gray-900);
+      color: var(--gray-300);
+      overflow-y: auto;
+      z-index: 100;
+      display: flex; flex-direction: column;
+    }
+    #sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    #sidebar-header .logo {
+      font-size: 13px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--primary-light);
+    }
+    #sidebar-header .subtitle {
+      font-size: 12px; color: var(--gray-400); margin-top: 4px;
+    }
+    #sidebar nav { padding: 12px 0 24px; flex: 1; }
+    #sidebar nav a {
+      display: block; padding: 7px 20px;
+      font-size: 13px; color: var(--gray-400);
+      text-decoration: none; border-left: 3px solid transparent;
+      transition: all .15s;
+    }
+    #sidebar nav a:hover { color: #fff; background: rgba(255,255,255,.05); }
+    #sidebar nav a.active { color: #fff; border-left-color: var(--primary); background: rgba(37,99,235,.15); }
+    #sidebar nav .nav-section {
+      font-size: 11px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--gray-500);
+      padding: 16px 20px 6px;
+    }
+    #sidebar nav a.sub { padding-left: 32px; font-size: 12.5px; }
+
+    /* ===== MAIN CONTENT ===== */
+    #content {
+      margin-left: var(--sidebar-w);
+      padding: 0;
+      min-height: 100vh;
+    }
+    .page-hero {
+      background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 50%, #1d4ed8 100%);
+      color: white; padding: 56px 48px 48px;
+    }
+    .page-hero .badge {
+      display: inline-block; background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 20px; padding: 4px 14px;
+      font-size: 12px; font-weight: 600; margin-bottom: 16px;
+    }
+    .page-hero h1 { font-size: 36px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+    .page-hero p { font-size: 17px; color: #e0eaff; max-width: 640px; }
+    .page-hero .meta { margin-top: 24px; display: flex; gap: 24px; flex-wrap: wrap; }
+    .page-hero .meta span {
+      font-size: 13px; color: #c7d9f8;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    .main-body { padding: 48px 48px 80px; max-width: 1000px; }
+
+    section { margin-bottom: 64px; }
+    section > h2 {
+      font-size: 24px; font-weight: 700; color: var(--gray-900);
+      border-bottom: 2px solid var(--primary-light);
+      padding-bottom: 10px; margin-bottom: 28px;
+    }
+    h3 { font-size: 18px; font-weight: 600; color: var(--gray-800); margin: 28px 0 12px; }
+    h4 { font-size: 15px; font-weight: 600; color: var(--gray-700); margin: 20px 0 8px; }
+    p { margin-bottom: 12px; color: var(--gray-700); }
+    ul, ol { padding-left: 20px; margin-bottom: 12px; color: var(--gray-700); }
+    li { margin-bottom: 4px; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: white; border: 1px solid var(--gray-200);
+      border-radius: var(--radius); padding: 20px 24px;
+      box-shadow: var(--shadow); margin-bottom: 16px;
+    }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--gray-900); margin-bottom: 8px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+    /* ===== STACK BADGES ===== */
+    .stack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    .stack-item {
+      background: white; border: 1px solid var(--gray-200);
+      border-radius: var(--radius); padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+    .stack-item .layer { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--gray-400); font-weight: 600; }
+    .stack-item .name { font-size: 14px; font-weight: 700; color: var(--gray-900); margin-top: 2px; }
+    .stack-item .detail { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+
+    /* ===== TABLES ===== */
+    .table-wrap { overflow-x: auto; margin: 12px 0 20px; border-radius: var(--radius); box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; background: white; font-size: 13.5px; }
+    thead { background: var(--gray-800); color: white; }
+    thead th { padding: 11px 16px; text-align: left; font-weight: 600; font-size: 13px; }
+    tbody tr { border-bottom: 1px solid var(--gray-100); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--gray-50); }
+    tbody td { padding: 10px 16px; vertical-align: top; }
+    td code, th code { font-family: var(--font-mono); font-size: 12px; }
+
+    /* ===== CODE BLOCKS ===== */
+    pre {
+      background: var(--gray-900); color: #e2e8f0;
+      border-radius: var(--radius); padding: 20px 24px;
+      font-family: var(--font-mono); font-size: 13px;
+      line-height: 1.7; overflow-x: auto; margin: 12px 0 20px;
+    }
+    code {
+      font-family: var(--font-mono); font-size: 12.5px;
+      background: var(--gray-100); color: var(--primary-dark);
+      padding: 2px 6px; border-radius: 4px;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; border-radius: 0; }
+
+    /* ===== SYNTAX COLORS ===== */
+    .kw { color: #93c5fd; } /* keyword */
+    .fn { color: #86efac; } /* function */
+    .st { color: #fcd34d; } /* string */
+    .cm { color: #64748b; } /* comment */
+    .nm { color: #f9a8d4; } /* number */
+    .cl { color: #c4b5fd; } /* class */
+    .at { color: #67e8f9; } /* attribute */
+
+    /* ===== BADGES ===== */
+    .badge {
+      display: inline-block; padding: 2px 9px;
+      border-radius: 12px; font-size: 11.5px; font-weight: 600;
+    }
+    .badge-blue { background: #dbeafe; color: #1d4ed8; }
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-yellow { background: #fef9c3; color: #a16207; }
+    .badge-red { background: #fee2e2; color: #b91c1c; }
+    .badge-gray { background: var(--gray-100); color: var(--gray-600); }
+    .badge-purple { background: #f3e8ff; color: #6d28d9; }
+    .badge-orange { background: #ffedd5; color: #c2410c; }
+
+    /* ===== ENDPOINT BLOCKS ===== */
+    .endpoint {
+      background: white; border: 1px solid var(--gray-200);
+      border-radius: var(--radius); margin-bottom: 16px;
+      overflow: hidden; box-shadow: var(--shadow);
+    }
+    .endpoint-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-bottom: 1px solid var(--gray-100);
+      background: var(--gray-50);
+    }
+    .method {
+      font-family: var(--font-mono); font-size: 12px;
+      font-weight: 700; padding: 3px 9px; border-radius: 5px;
+      min-width: 52px; text-align: center;
+    }
+    .method-get  { background: #dcfce7; color: #15803d; }
+    .method-post { background: #dbeafe; color: #1e40af; }
+    .method-put  { background: #fef9c3; color: #a16207; }
+    .method-del  { background: #fee2e2; color: #b91c1c; }
+    .endpoint-path {
+      font-family: var(--font-mono); font-size: 14px;
+      font-weight: 600; color: var(--gray-900);
+    }
+    .endpoint-auth {
+      margin-left: auto; font-size: 11.5px;
+      padding: 2px 8px; background: #fef9c3;
+      color: #92400e; border-radius: 4px; font-weight: 600;
+    }
+    .endpoint-body { padding: 16px; }
+    .endpoint-body p { font-size: 13.5px; margin-bottom: 10px; }
+
+    /* ===== CF VISUALIZER ===== */
+    .cf-scale {
+      display: flex; border-radius: var(--radius); overflow: hidden;
+      height: 36px; margin: 12px 0 20px; box-shadow: var(--shadow);
+    }
+    .cf-scale div {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: white;
+    }
+    .cf-neg   { background: #dc2626; }
+    .cf-low   { background: #f97316; }
+    .cf-mid   { background: #eab308; color: #1a1a1a; }
+    .cf-high  { background: #22c55e; }
+    .cf-full  { background: #16a34a; }
+
+    /* ===== FLOW DIAGRAM ===== */
+    .flow {
+      display: flex; flex-direction: column; gap: 0;
+      max-width: 480px;
+    }
+    .flow-step {
+      display: flex; align-items: flex-start; gap: 16px;
+    }
+    .flow-left { display: flex; flex-direction: column; align-items: center; }
+    .flow-circle {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--primary); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 14px; flex-shrink: 0;
+    }
+    .flow-line {
+      width: 2px; flex: 1; min-height: 24px;
+      background: var(--gray-200); margin: 2px 0;
+    }
+    .flow-content { padding: 6px 0 20px; }
+    .flow-content strong { font-size: 14px; color: var(--gray-900); }
+    .flow-content p { font-size: 13px; color: var(--gray-500); margin: 2px 0 0; }
+
+    /* ===== CALLOUT ===== */
+    .callout {
+      border-radius: var(--radius); padding: 14px 18px; margin: 12px 0 20px;
+      display: flex; gap: 12px; align-items: flex-start;
+      font-size: 13.5px;
+    }
+    .callout-icon { font-size: 17px; flex-shrink: 0; margin-top: 1px; }
+    .callout-info    { background: #eff6ff; border-left: 4px solid var(--primary); }
+    .callout-warning { background: #fffbeb; border-left: 4px solid #f59e0b; }
+    .callout-danger  { background: #fef2f2; border-left: 4px solid #ef4444; }
+    .callout-success { background: #f0fdf4; border-left: 4px solid #22c55e; }
+
+    /* ===== FILE TREE ===== */
+    .filetree {
+      background: var(--gray-900); color: var(--gray-300);
+      border-radius: var(--radius); padding: 20px 24px;
+      font-family: var(--font-mono); font-size: 13px;
+      line-height: 1.8; overflow-x: auto;
+      white-space: pre;
+    }
+    .filetree .dir  { color: #93c5fd; font-weight: 600; }
+    .filetree .file { color: #e2e8f0; }
+    .filetree .note { color: #64748b; }
+
+    /* ===== FORMULA BOX ===== */
+    .formula-box {
+      background: linear-gradient(135deg, #f0f7ff, #e8f4fd);
+      border: 1px solid #bfdbfe; border-radius: var(--radius);
+      padding: 20px 24px; margin: 12px 0 20px;
+    }
+    .formula {
+      font-family: var(--font-mono); font-size: 14px;
+      color: var(--gray-900); line-height: 2;
+    }
+    .formula .eq { color: var(--primary-dark); font-weight: 700; }
+
+    /* ===== CATEGORY CHIPS ===== */
+    .cat-grid { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 20px; }
+    .cat-chip {
+      padding: 6px 14px; border-radius: 20px;
+      font-size: 13px; font-weight: 600;
+      border: 2px solid;
+    }
+
+    /* ===== TOP NAV ===== */
+    #topnav {
+      position: sticky; top: 0; z-index: 50;
+      background: white; border-bottom: 1px solid var(--gray-200);
+      padding: 0 48px; height: 52px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--gray-500); box-shadow: var(--shadow);
+    }
+    #topnav span { color: var(--gray-300); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      #sidebar { display: none; }
+      #content { margin-left: 0; }
+      .main-body { padding: 24px 20px 60px; }
+      .page-hero { padding: 32px 20px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    /* ===== PRINT ===== */
+    @media print {
+      #sidebar, #topnav { display: none; }
+      #content { margin-left: 0; }
+      .main-body { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- =========================================================
+     SIDEBAR
+     ========================================================= -->
+<aside id="sidebar">
+  <div id="sidebar-header">
+    <div class="logo">DiagLaptop</div>
+    <div class="subtitle">Dokumentasi Teknis v1.0</div>
+  </div>
+  <nav>
+    <div class="nav-section">Pendahuluan</div>
+    <a href="#overview">Gambaran Umum</a>
+    <a href="#techstack">Tech Stack</a>
+    <a href="#struktur">Struktur Proyek</a>
+
+    <div class="nav-section">Backend</div>
+    <a href="#database">Database & Model</a>
+    <a href="#schema">Pydantic Schemas</a>
+    <a href="#engine">Inference Engine</a>
+    <a href="#api">API Endpoints</a>
+    <a href="#auth">Autentikasi</a>
+
+    <div class="nav-section">Frontend</div>
+    <a href="#frontend-arch">Arsitektur Frontend</a>
+    <a href="#komponen">Komponen Utama</a>
+    <a href="#state">State Management</a>
+    <a href="#types">TypeScript Types</a>
+
+    <div class="nav-section">Operasional</div>
+    <a href="#setup">Setup & Instalasi</a>
+    <a href="#env">Environment Variables</a>
+    <a href="#seed">Knowledge Base</a>
+    <a href="#konvensi">Konvensi Kode</a>
+    <a href="#glosarium">Glosarium</a>
+  </nav>
+</aside>
+
+<!-- =========================================================
+     MAIN CONTENT
+     ========================================================= -->
+<div id="content">
+
+  <!-- Hero -->
+  <div class="page-hero">
+    <div class="badge">Dokumentasi Teknis</div>
+    <h1>Sistem Pakar Diagnosis<br>Kerusakan Laptop/PC</h1>
+    <p>Aplikasi web berbasis <strong>Forward Chaining + Certainty Factor</strong> untuk mendiagnosis kerusakan hardware laptop dan PC secara interaktif.</p>
+    <div class="meta">
+      <span>🗓️ Versi 1.0.0</span>
+      <span>🐍 Python 3.11+ / FastAPI</span>
+      <span>⚛️ Next.js 14+ / TypeScript</span>
+      <span>🗄️ SQLite / PostgreSQL</span>
+    </div>
+  </div>
+
+  <div id="topnav">
+    <span>DiagLaptop</span> / <span>›</span> Dokumentasi Teknis
+  </div>
+
+  <div class="main-body">
+
+    <!-- =====================================================
+         GAMBARAN UMUM
+         ===================================================== -->
+    <section id="overview">
+      <h2>Gambaran Umum</h2>
+      <p>
+        <strong>DiagLaptop</strong> adalah sistem pakar berbasis web yang membantu pengguna mendiagnosis kerusakan hardware laptop dan PC. Pengguna menjawab serangkaian pertanyaan tentang gejala yang dialami perangkatnya, lalu sistem menggunakan <em>inference engine</em> Forward Chaining dikombinasikan dengan Certainty Factor (CF) untuk menyimpulkan kemungkinan kerusakan beserta langkah solusinya.
+      </p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Tujuan Utama</div>
+          <ul>
+            <li>Mendiagnosis kerusakan hardware secara otomatis</li>
+            <li>Memberikan rekomendasi solusi yang konkret</li>
+            <li>Mengukur tingkat kepercayaan (CF) tiap diagnosis</li>
+            <li>Menyimpan riwayat diagnosis untuk analisis</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">Fitur Utama</div>
+          <ul>
+            <li>Wizard diagnosis per kategori gejala</li>
+            <li>9+ kategori kerusakan hardware</li>
+            <li>Panel admin CRUD (gejala, kerusakan, rules)</li>
+            <li>Riwayat diagnosis dengan session ID</li>
+            <li>Autentikasi JWT untuk admin</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Alur Sistem Secara Keseluruhan</h3>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-left"><div class="flow-circle">1</div><div class="flow-line"></div></div>
+          <div class="flow-content"><strong>User membuka halaman Diagnosis</strong><p>Frontend fetch daftar gejala dari <code>GET /api/v1/gejala</code></p></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-left"><div class="flow-circle">2</div><div class="flow-line"></div></div>
+          <div class="flow-content"><strong>User menjawab setiap gejala</strong><p>Tersedia 4 opsi: Ya (1.0), Mungkin (0.6), Tidak Tahu (0.0), Tidak (−1.0)</p></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-left"><div class="flow-circle">3</div><div class="flow-line"></div></div>
+          <div class="flow-content"><strong>Submit ke inference engine</strong><p><code>POST /api/v1/diagnose</code> dikirim dengan daftar <code>gejala_id</code> + <code>cf_user</code></p></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-left"><div class="flow-circle">4</div><div class="flow-line"></div></div>
+          <div class="flow-content"><strong>Forward Chaining + CF</strong><p>Engine query rules, hitung CF gabungan, filter ≥ 0.2, urutkan descending</p></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-left"><div class="flow-circle">5</div></div>
+          <div class="flow-content"><strong>Hasil ditampilkan</strong><p>Maks. 5 kerusakan teratas beserta deskripsi, solusi, dan persentase CF</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         TECH STACK
+         ===================================================== -->
+    <section id="techstack">
+      <h2>Tech Stack</h2>
+      <div class="stack-grid">
+        <div class="stack-item">
+          <div class="layer">Framework</div>
+          <div class="name">Next.js 14+</div>
+          <div class="detail">App Router, SSR/CSR</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">Language</div>
+          <div class="name">TypeScript</div>
+          <div class="detail">Strict mode</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">Styling</div>
+          <div class="name">Tailwind CSS</div>
+          <div class="detail">+ shadcn/ui</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">State</div>
+          <div class="name">Zustand</div>
+          <div class="detail">+ persist middleware</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">HTTP Client</div>
+          <div class="name">Axios</div>
+          <div class="detail">Interceptors JWT</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">Backend</div>
+          <div class="name">FastAPI</div>
+          <div class="detail">Python 3.11+</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">ORM</div>
+          <div class="name">SQLAlchemy 2</div>
+          <div class="detail">Mapped Columns</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">Database</div>
+          <div class="name">SQLite / PgSQL</div>
+          <div class="detail">Dev / Production</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">Validation</div>
+          <div class="name">Pydantic v2</div>
+          <div class="detail">pydantic-settings</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">Auth</div>
+          <div class="name">JWT</div>
+          <div class="detail">python-jose + bcrypt</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">Package</div>
+          <div class="name">pnpm</div>
+          <div class="detail">Frontend</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">Docs</div>
+          <div class="name">Swagger UI</div>
+          <div class="detail">/docs (dev mode)</div>
+        </div>
+      </div>
+
+      <h3>Dependensi Backend (<code>requirements.txt</code>)</h3>
+      <pre><code>fastapi&gt;=0.111.0
+uvicorn[standard]&gt;=0.29.0
+sqlalchemy&gt;=2.0.0
+pydantic&gt;=2.7.0
+pydantic-settings&gt;=2.3.0
+python-jose[cryptography]&gt;=3.3.0
+passlib[bcrypt]&gt;=1.7.4
+python-multipart&gt;=0.0.9
+email-validator&gt;=2.1.0</code></pre>
+    </section>
+
+    <!-- =====================================================
+         STRUKTUR PROYEK
+         ===================================================== -->
+    <section id="struktur">
+      <h2>Struktur Proyek</h2>
+      <div class="filetree">
+<span class="dir">SistemPakar_DiagnosisLaptop/</span>
+├── <span class="dir">backend/</span>
+│   ├── <span class="dir">app/</span>
+│   │   ├── <span class="dir">api/v1/</span>
+│   │   │   ├── <span class="file">auth.py</span>         <span class="note">— POST /auth/register, /auth/login</span>
+│   │   │   ├── <span class="file">diagnosis.py</span>    <span class="note">— POST /diagnose</span>
+│   │   │   ├── <span class="file">gejala.py</span>       <span class="note">— CRUD /gejala</span>
+│   │   │   ├── <span class="file">kerusakan.py</span>    <span class="note">— CRUD /kerusakan</span>
+│   │   │   ├── <span class="file">rules.py</span>        <span class="note">— CRUD /rules</span>
+│   │   │   ├── <span class="file">history.py</span>      <span class="note">— GET /history (admin)</span>
+│   │   │   └── <span class="file">router.py</span>       <span class="note">— include semua router</span>
+│   │   ├── <span class="dir">core/</span>
+│   │   │   ├── <span class="file">config.py</span>       <span class="note">— Settings via pydantic-settings</span>
+│   │   │   ├── <span class="file">database.py</span>     <span class="note">— SQLAlchemy engine + get_db()</span>
+│   │   │   └── <span class="file">security.py</span>     <span class="note">— JWT + bcrypt helpers</span>
+│   │   ├── <span class="dir">engine/</span>
+│   │   │   ├── <span class="file">certainty_factor.py</span>  <span class="note">— Formula CF</span>
+│   │   │   └── <span class="file">forward_chain.py</span>     <span class="note">— Inference engine</span>
+│   │   ├── <span class="dir">models/</span>
+│   │   │   ├── <span class="file">base.py</span>             <span class="note">— DeclarativeBase</span>
+│   │   │   ├── <span class="file">gejala.py</span>
+│   │   │   ├── <span class="file">kerusakan.py</span>
+│   │   │   ├── <span class="file">rule.py</span>
+│   │   │   ├── <span class="file">diagnosis_history.py</span>
+│   │   │   └── <span class="file">user.py</span>
+│   │   ├── <span class="dir">schemas/</span>
+│   │   │   ├── <span class="file">gejala.py</span>
+│   │   │   ├── <span class="file">kerusakan.py</span>
+│   │   │   ├── <span class="file">rule.py</span>
+│   │   │   ├── <span class="file">diagnosis.py</span>
+│   │   │   └── <span class="file">user.py</span>
+│   │   ├── <span class="dir">services/</span>
+│   │   │   └── <span class="file">diagnosis_service.py</span> <span class="note">— Orkestrasi diagnosis</span>
+│   │   ├── <span class="dir">data/</span>
+│   │   │   ├── <span class="file">knowledge_base.json</span>  <span class="note">— 60+ gejala + rules</span>
+│   │   │   └── <span class="file">seed.sql</span>
+│   │   ├── <span class="file">seed.py</span>             <span class="note">— Import knowledge base ke DB</span>
+│   │   ├── <span class="file">create_admin.py</span>
+│   │   └── <span class="file">main.py</span>             <span class="note">— FastAPI app + CORS + router</span>
+│   ├── <span class="file">requirements.txt</span>
+│   ├── <span class="file">pyproject.toml</span>
+│   └── <span class="file">.env.example</span>
+│
+├── <span class="dir">frontend/</span>
+│   ├── <span class="dir">app/</span>
+│   │   ├── <span class="dir">(auth)/</span>
+│   │   │   ├── <span class="dir">login/</span><span class="file">page.tsx</span>
+│   │   │   └── <span class="dir">register/</span><span class="file">page.tsx</span>
+│   │   ├── <span class="dir">diagnosis/</span>
+│   │   │   └── <span class="file">page.tsx</span>         <span class="note">— Halaman diagnosis utama</span>
+│   │   ├── <span class="dir">admin/</span>
+│   │   │   ├── <span class="dir">gejala/</span><span class="file">page.tsx</span>
+│   │   │   ├── <span class="dir">kerusakan/</span><span class="file">page.tsx</span>
+│   │   │   ├── <span class="dir">rules/</span><span class="file">page.tsx</span>
+│   │   │   └── <span class="dir">history/</span><span class="file">page.tsx</span>
+│   │   ├── <span class="file">layout.tsx</span>
+│   │   └── <span class="file">page.tsx</span>             <span class="note">— Landing page</span>
+│   ├── <span class="dir">components/</span>
+│   │   ├── <span class="dir">diagnosis/</span>
+│   │   │   ├── <span class="file">QuestionWizard.tsx</span>   <span class="note">— Wizard per kategori</span>
+│   │   │   └── <span class="file">DiagnosisResult.tsx</span>  <span class="note">— Tampilan hasil + CF bar</span>
+│   │   └── <span class="dir">ui/</span>                  <span class="note">— shadcn/ui components</span>
+│   ├── <span class="dir">lib/</span>
+│   │   ├── <span class="file">api.ts</span>               <span class="note">— Semua Axios API calls</span>
+│   │   ├── <span class="file">store.ts</span>             <span class="note">— Zustand stores</span>
+│   │   └── <span class="file">utils.ts</span>             <span class="note">— formatCF, getCFColor, dll</span>
+│   ├── <span class="dir">types/</span>
+│   │   └── <span class="file">index.ts</span>             <span class="note">— Shared TS interfaces</span>
+│   └── <span class="dir">... (config files)</span>
+│
+├── <span class="file">docker-compose.yml</span>      <span class="note">— PostgreSQL + pgAdmin</span>
+└── <span class="file">README.md</span>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         DATABASE & MODEL
+         ===================================================== -->
+    <section id="database">
+      <h2>Database &amp; Model</h2>
+      <p>Backend menggunakan <strong>SQLAlchemy 2.0</strong> dengan <em>mapped columns</em>. Database default adalah SQLite untuk development dan PostgreSQL untuk production.</p>
+
+      <h3>Tabel <code>gejala</code></h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Deskripsi</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>id</code></td><td>VARCHAR(36)</td><td>Primary Key</td><td>UUID string</td></tr>
+            <tr><td><code>kode</code></td><td>VARCHAR(10)</td><td>UNIQUE, NOT NULL, INDEX</td><td>Kode unik, mis. <code>G001</code></td></tr>
+            <tr><td><code>pertanyaan</code></td><td>TEXT</td><td>NOT NULL</td><td>Teks pertanyaan yang ditampilkan ke user</td></tr>
+            <tr><td><code>kategori</code></td><td>VARCHAR(50)</td><td>NOT NULL, INDEX</td><td>power, display, baterai, dll.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Tabel <code>kerusakan</code></h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Deskripsi</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>id</code></td><td>VARCHAR(36)</td><td>Primary Key</td><td>UUID string</td></tr>
+            <tr><td><code>kode</code></td><td>VARCHAR(10)</td><td>UNIQUE, NOT NULL, INDEX</td><td>Kode unik, mis. <code>K001</code></td></tr>
+            <tr><td><code>nama</code></td><td>VARCHAR(200)</td><td>NOT NULL</td><td>Nama kerusakan singkat</td></tr>
+            <tr><td><code>deskripsi</code></td><td>TEXT</td><td>NOT NULL</td><td>Penjelasan detail kerusakan</td></tr>
+            <tr><td><code>solusi</code></td><td>TEXT</td><td>NOT NULL</td><td>Langkah perbaikan (multiline)</td></tr>
+            <tr><td><code>kategori</code></td><td>VARCHAR(50)</td><td>NOT NULL, INDEX</td><td>Kategori kerusakan</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Tabel <code>rule</code></h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Deskripsi</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>id</code></td><td>VARCHAR(36)</td><td>Primary Key</td><td>UUID string</td></tr>
+            <tr><td><code>gejala_id</code></td><td>VARCHAR(36)</td><td>FK → gejala.id, CASCADE</td><td>Referensi gejala</td></tr>
+            <tr><td><code>kerusakan_id</code></td><td>VARCHAR(36)</td><td>FK → kerusakan.id, CASCADE</td><td>Referensi kerusakan</td></tr>
+            <tr><td><code>cf_pakar</code></td><td>FLOAT</td><td>NOT NULL</td><td>Nilai kepercayaan pakar (0.0–1.0)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-info">
+        <div class="callout-icon">ℹ️</div>
+        <div>Pasangan <code>(gejala_id, kerusakan_id)</code> memiliki UNIQUE constraint <code>uq_rule_gejala_kerusakan</code>. Satu gejala hanya bisa memiliki satu rule per kerusakan.</div>
+      </div>
+
+      <h3>Tabel <code>diagnosis_history</code></h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Deskripsi</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>id</code></td><td>VARCHAR(36)</td><td>Primary Key</td><td>UUID string</td></tr>
+            <tr><td><code>session_id</code></td><td>VARCHAR(100)</td><td>NOT NULL, INDEX</td><td>ID sesi diagnosis (UUID atau custom)</td></tr>
+            <tr><td><code>gejala_dipilih</code></td><td>JSON</td><td>NOT NULL</td><td>Array <code>[{gejala_id, cf_user}]</code></td></tr>
+            <tr><td><code>hasil</code></td><td>JSON</td><td>NOT NULL</td><td>Array <code>DiagnosisItem[]</code> hasil diagnosis</td></tr>
+            <tr><td><code>created_at</code></td><td>DATETIME</td><td>NOT NULL, default=utcnow</td><td>Timestamp diagnosis</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Tabel <code>user</code></h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Deskripsi</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>id</code></td><td>VARCHAR(36)</td><td>Primary Key</td><td>UUID string</td></tr>
+            <tr><td><code>username</code></td><td>VARCHAR(100)</td><td>UNIQUE, NOT NULL, INDEX</td><td>Username login</td></tr>
+            <tr><td><code>email</code></td><td>VARCHAR(200)</td><td>UNIQUE, NOT NULL</td><td>Alamat email</td></tr>
+            <tr><td><code>hashed_password</code></td><td>VARCHAR(200)</td><td>NOT NULL</td><td>Password bcrypt hash</td></tr>
+            <tr><td><code>is_admin</code></td><td>BOOLEAN</td><td>default=False</td><td>Apakah user adalah admin</td></tr>
+            <tr><td><code>is_active</code></td><td>BOOLEAN</td><td>default=True</td><td>Apakah akun aktif</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Relasi Antar Tabel</h3>
+      <pre><code>gejala (1) ──── (N) rule (N) ──── (1) kerusakan
+              └── cf_pakar (nilai pakar)
+
+user      → mengakses endpoint admin (via JWT)
+diagnosis_history → menyimpan snapshot gejala + hasil
+</code></pre>
+    </section>
+
+    <!-- =====================================================
+         PYDANTIC SCHEMAS
+         ===================================================== -->
+    <section id="schema">
+      <h2>Pydantic Schemas</h2>
+      <p>Semua request body dan response menggunakan Pydantic v2 schema — terpisah dari ORM model.</p>
+
+      <h3>Gejala Schemas</h3>
+      <pre><code><span class="kw">class</span> <span class="cl">GejalaBase</span>(BaseModel):
+    kode: str
+    pertanyaan: str
+    kategori: str
+
+<span class="kw">class</span> <span class="cl">GejalaCreate</span>(GejalaBase): ...         <span class="cm"># POST body</span>
+<span class="kw">class</span> <span class="cl">GejalaUpdate</span>(BaseModel):              <span class="cm"># PUT body (semua optional)</span>
+    kode: str | None = None
+    pertanyaan: str | None = None
+    kategori: str | None = None
+<span class="kw">class</span> <span class="cl">GejalaResponse</span>(GejalaBase):           <span class="cm"># response + id</span>
+    id: str</code></pre>
+
+      <h3>Diagnosis Schemas</h3>
+      <pre><code><span class="kw">class</span> <span class="cl">GejalaInput</span>(BaseModel):
+    gejala_id: str
+    cf_user: float = Field(ge=-1.0, le=1.0)   <span class="cm"># −1.0 hingga 1.0</span>
+
+<span class="kw">class</span> <span class="cl">DiagnoseRequest</span>(BaseModel):
+    gejala_list: list[GejalaInput]
+    session_id: str | None = None             <span class="cm"># auto-generate UUID jika None</span>
+
+<span class="kw">class</span> <span class="cl">DiagnosisItem</span>(BaseModel):
+    kerusakan_id: str
+    kode: str
+    nama: str
+    deskripsi: str
+    solusi: str
+    kategori: str
+    cf_total: float
+
+<span class="kw">class</span> <span class="cl">DiagnoseResponse</span>(BaseModel):
+    session_id: str
+    hasil: list[DiagnosisItem]
+    total_gejala: int</code></pre>
+
+      <h3>Rule Schemas</h3>
+      <pre><code><span class="kw">class</span> <span class="cl">RuleBase</span>(BaseModel):
+    gejala_id: str
+    kerusakan_id: str
+    cf_pakar: float = Field(ge=0.0, le=1.0)   <span class="cm"># 0.0 hingga 1.0</span>
+
+<span class="kw">class</span> <span class="cl">RuleWithDetails</span>(RuleResponse):          <span class="cm"># response GET /rules (enriched)</span>
+    gejala_kode: str | None
+    gejala_pertanyaan: str | None
+    kerusakan_kode: str | None
+    kerusakan_nama: str | None</code></pre>
+    </section>
+
+    <!-- =====================================================
+         INFERENCE ENGINE
+         ===================================================== -->
+    <section id="engine">
+      <h2>Inference Engine</h2>
+      <p>Inti sistem pakar ini terdiri dari dua modul di <code>backend/app/engine/</code>: perhitungan Certainty Factor dan Forward Chaining.</p>
+
+      <h3>Certainty Factor (CF)</h3>
+      <p>CF mengukur tingkat kepercayaan suatu diagnosis. Nilai berkisar dari <strong>−1.0</strong> (pasti tidak) hingga <strong>1.0</strong> (pasti ya).</p>
+
+      <h4>Nilai CF User</h4>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Jawaban User</th><th>Nilai CF</th><th>Makna</th></tr></thead>
+          <tbody>
+            <tr><td>Ya</td><td><code>1.0</code></td><td>Gejala ini pasti dialami</td></tr>
+            <tr><td>Mungkin</td><td><code>0.6</code></td><td>Gejala ini kemungkinan besar dialami</td></tr>
+            <tr><td>Tidak Tahu</td><td><code>0.0</code></td><td>Tidak bisa dipastikan (diabaikan dalam kalkulasi)</td></tr>
+            <tr><td>Tidak</td><td><code>-1.0</code></td><td>Gejala ini tidak dialami (mengurangi kepercayaan)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Skala CF Visual</h4>
+      <div class="cf-scale">
+        <div class="cf-neg">−1.0<br><small>Tidak</small></div>
+        <div class="cf-low">−0.5<br><small>Rendah</small></div>
+        <div class="cf-mid">0.0<br><small>Netral</small></div>
+        <div class="cf-high">0.5<br><small>Sedang</small></div>
+        <div class="cf-full">1.0<br><small>Tinggi</small></div>
+      </div>
+
+      <h4>Formula CF</h4>
+      <div class="formula-box">
+        <div class="formula">
+          <span class="cm"># Langkah 1: Gabungkan CF pakar dan CF user</span><br>
+          CF_combined <span class="eq">=</span> CF_pakar <span class="eq">×</span> CF_user<br><br>
+          <span class="cm"># Langkah 2: Merge CF dari banyak gejala untuk satu kerusakan</span><br>
+          <span class="cm"># Keduanya positif:</span><br>
+          CF_merge <span class="eq">=</span> CF1 <span class="eq">+</span> CF2 <span class="eq">×</span> (1 <span class="eq">−</span> CF1)<br><br>
+          <span class="cm"># Keduanya negatif:</span><br>
+          CF_merge <span class="eq">=</span> CF1 <span class="eq">+</span> CF2 <span class="eq">×</span> (1 <span class="eq">+</span> CF1)<br><br>
+          <span class="cm"># Berlawanan tanda:</span><br>
+          CF_merge <span class="eq">=</span> (CF1 <span class="eq">+</span> CF2) <span class="eq">/</span> (1 <span class="eq">−</span> min(|CF1|, |CF2|))
+        </div>
+      </div>
+
+      <h4>Implementasi Python</h4>
+      <pre><code><span class="cm"># certainty_factor.py</span>
+
+<span class="kw">def</span> <span class="fn">cf_combine</span>(cf_pakar: float, cf_user: float) -> float:
+    <span class="st">"""Langkah 1: CF pakar × CF user"""</span>
+    <span class="kw">return</span> cf_pakar * cf_user
+
+
+<span class="kw">def</span> <span class="fn">cf_merge</span>(cf1: float, cf2: float) -> float:
+    <span class="st">"""Langkah 2: Gabungkan dua nilai CF dengan formula standar"""</span>
+    <span class="kw">if</span> cf1 >= <span class="nm">0</span> <span class="kw">and</span> cf2 >= <span class="nm">0</span>:
+        <span class="kw">return</span> cf1 + cf2 * (<span class="nm">1</span> - cf1)
+    <span class="kw">elif</span> cf1 < <span class="nm">0</span> <span class="kw">and</span> cf2 < <span class="nm">0</span>:
+        <span class="kw">return</span> cf1 + cf2 * (<span class="nm">1</span> + cf1)
+    <span class="kw">else</span>:
+        denom = <span class="nm">1</span> - min(abs(cf1), abs(cf2))
+        <span class="kw">if</span> denom == <span class="nm">0.0</span>: <span class="kw">return</span> <span class="nm">0.0</span>
+        <span class="kw">return</span> (cf1 + cf2) / denom
+
+
+<span class="kw">def</span> <span class="fn">merge_cf_list</span>(cf_values: list[float]) -> float:
+    <span class="st">"""Merge daftar CF secara sekuensial (kiri ke kanan)"""</span>
+    <span class="kw">if not</span> cf_values: <span class="kw">return</span> <span class="nm">0.0</span>
+    result = cf_values[<span class="nm">0</span>]
+    <span class="kw">for</span> cf <span class="kw">in</span> cf_values[<span class="nm">1</span>:]:
+        result = cf_merge(result, cf)
+    <span class="kw">return</span> result</code></pre>
+
+      <h3>Forward Chaining</h3>
+      <p>Proses inferensi di <code>forward_chain.py</code>:</p>
+      <pre><code><span class="kw">def</span> <span class="fn">run_diagnosis</span>(db: Session, gejala_inputs: list[GejalaInput]) -> list[DiagnosisItem]:
+    <span class="cm"># 1. Ambil semua rule yang cocok dengan gejala yang dipilih</span>
+    gejala_ids = [g.gejala_id <span class="kw">for</span> g <span class="kw">in</span> gejala_inputs]
+    rules = db.query(Rule).filter(Rule.gejala_id.in_(gejala_ids)).all()
+
+    <span class="cm"># 2. Hitung CF combined per rule, kumpulkan per kerusakan</span>
+    kerusakan_cf_map: dict[str, list[float]] = {}
+    <span class="kw">for</span> rule <span class="kw">in</span> rules:
+        cf_user = cf_user_map.get(rule.gejala_id, <span class="nm">0.0</span>)
+        cf_combined = cf_combine(rule.cf_pakar, cf_user)
+        <span class="kw">if</span> cf_combined == <span class="nm">0.0</span>: <span class="kw">continue</span>
+        kerusakan_cf_map.setdefault(rule.kerusakan_id, []).append(cf_combined)
+
+    <span class="cm"># 3. Merge semua CF per kerusakan, filter CF &lt; 0.2</span>
+    <span class="kw">for</span> kerusakan_id, cf_list <span class="kw">in</span> kerusakan_cf_map.items():
+        cf_total = merge_cf_list(cf_list)
+        <span class="kw">if</span> cf_total < CF_THRESHOLD: <span class="kw">continue</span>  <span class="cm"># threshold = 0.2</span>
+
+    <span class="cm"># 4. Sort descending, return top 5</span>
+    results.sort(key=<span class="kw">lambda</span> x: x.cf_total, reverse=<span class="kw">True</span>)
+    <span class="kw">return</span> results[:MAX_RESULTS]  <span class="cm"># MAX_RESULTS = 5</span></code></pre>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">⚠️</div>
+        <div><strong>Konstanta penting:</strong> <code>CF_THRESHOLD = 0.2</code> dan <code>MAX_RESULTS = 5</code> didefinisikan di <code>forward_chain.py</code>. Gejala dengan <code>cf_user = 0.0</code> (Tidak Tahu) tidak berkontribusi ke kalkulasi apapun karena <code>CF_combined = cf_pakar × 0 = 0</code>.</div>
+      </div>
+
+      <h3>Contoh Kalkulasi</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Gejala</th><th>CF Pakar</th><th>Jawaban User</th><th>CF User</th><th>CF Combined</th></tr></thead>
+          <tbody>
+            <tr><td>G001 — Tidak menyala</td><td>0.9</td><td>Ya</td><td>1.0</td><td>0.9</td></tr>
+            <tr><td>G002 — LED tidak nyala</td><td>0.8</td><td>Mungkin</td><td>0.6</td><td>0.48</td></tr>
+            <tr><td>G007 — Adaptor mati</td><td>0.95</td><td>Ya</td><td>1.0</td><td>0.95</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Misalnya ketiga gejala di atas sama-sama menunjuk ke kerusakan <em>Adaptor Rusak</em>:</p>
+      <div class="formula-box">
+        <div class="formula">
+          CF_merge(0.9, 0.48)  <span class="eq">=</span> 0.9 + 0.48 × (1 − 0.9) <span class="eq">=</span> 0.9 + 0.048 <span class="eq">=</span> 0.948<br>
+          CF_merge(0.948, 0.95) <span class="eq">=</span> 0.948 + 0.95 × (1 − 0.948) <span class="eq">=</span> 0.948 + 0.0494 <span class="eq">≈</span> <strong>0.9974</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         API ENDPOINTS
+         ===================================================== -->
+    <section id="api">
+      <h2>API Endpoints</h2>
+      <p>Semua endpoint berada di prefix <code>/api/v1</code>. Dokumentasi interaktif tersedia di <code>http://localhost:8000/docs</code> saat <code>ENVIRONMENT=development</code>.</p>
+
+      <h3>Diagnosis</h3>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-post">POST</span>
+          <span class="endpoint-path">/api/v1/diagnose</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Menjalankan proses diagnosis berdasarkan daftar gejala yang dipilih user. Menyimpan hasil ke <code>diagnosis_history</code>.</p>
+          <h4>Request Body</h4>
+          <pre><code>{
+  <span class="at">"gejala_list"</span>: [
+    { <span class="at">"gejala_id"</span>: <span class="st">"uuid-gejala"</span>, <span class="at">"cf_user"</span>: <span class="nm">1.0</span> },
+    { <span class="at">"gejala_id"</span>: <span class="st">"uuid-gejala-2"</span>, <span class="at">"cf_user"</span>: <span class="nm">0.6</span> }
+  ],
+  <span class="at">"session_id"</span>: <span class="st">"optional-custom-id"</span>
+}</code></pre>
+          <h4>Response 200</h4>
+          <pre><code>{
+  <span class="at">"session_id"</span>: <span class="st">"uuid"</span>,
+  <span class="at">"total_gejala"</span>: <span class="nm">2</span>,
+  <span class="at">"hasil"</span>: [
+    {
+      <span class="at">"kerusakan_id"</span>: <span class="st">"uuid"</span>,
+      <span class="at">"kode"</span>: <span class="st">"K003"</span>,
+      <span class="at">"nama"</span>: <span class="st">"Adaptor Rusak"</span>,
+      <span class="at">"deskripsi"</span>: <span class="st">"..."</span>,
+      <span class="at">"solusi"</span>: <span class="st">"..."</span>,
+      <span class="at">"kategori"</span>: <span class="st">"power"</span>,
+      <span class="at">"cf_total"</span>: <span class="nm">0.9974</span>
+    }
+  ]
+}</code></pre>
+        </div>
+      </div>
+
+      <h3>Gejala</h3>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-get">GET</span>
+          <span class="endpoint-path">/api/v1/gejala</span>
+        </div>
+        <div class="endpoint-body">
+          <p>List semua gejala. Query param opsional: <code>?kategori=power</code> untuk filter.</p>
+          <p>Response: <code>GejalaResponse[]</code> diurutkan berdasarkan <code>kode</code>.</p>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-get">GET</span>
+          <span class="endpoint-path">/api/v1/gejala/{id}</span>
+        </div>
+        <div class="endpoint-body"><p>Ambil satu gejala berdasarkan ID. 404 jika tidak ditemukan.</p></div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-post">POST</span>
+          <span class="endpoint-path">/api/v1/gejala</span>
+          <span class="endpoint-auth">🔒 Admin</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Buat gejala baru. 400 jika <code>kode</code> sudah ada. Response: 201 Created.</p>
+          <pre><code>{ <span class="at">"kode"</span>: <span class="st">"G070"</span>, <span class="at">"pertanyaan"</span>: <span class="st">"..."</span>, <span class="at">"kategori"</span>: <span class="st">"power"</span> }</code></pre>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-put">PUT</span>
+          <span class="endpoint-path">/api/v1/gejala/{id}</span>
+          <span class="endpoint-auth">🔒 Admin</span>
+        </div>
+        <div class="endpoint-body"><p>Update sebagian field gejala. Semua field opsional (partial update).</p></div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-del">DELETE</span>
+          <span class="endpoint-path">/api/v1/gejala/{id}</span>
+          <span class="endpoint-auth">🔒 Admin</span>
+        </div>
+        <div class="endpoint-body"><p>Hapus gejala. Rules yang terkait ikut terhapus (CASCADE). Response: 204 No Content.</p></div>
+      </div>
+
+      <h3>Kerusakan</h3>
+      <p>Endpoint identik dengan Gejala — <code>GET</code>, <code>GET /{id}</code>, <code>POST</code>, <code>PUT /{id}</code>, <code>DELETE /{id}</code> di <code>/api/v1/kerusakan</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Method</th><th>Path</th><th>Auth</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-green">GET</span></td><td><code>/api/v1/kerusakan</code></td><td>Publik</td><td>List + filter <code>?kategori=</code></td></tr>
+            <tr><td><span class="badge badge-green">GET</span></td><td><code>/api/v1/kerusakan/{id}</code></td><td>Publik</td><td>Detail satu kerusakan</td></tr>
+            <tr><td><span class="badge badge-blue">POST</span></td><td><code>/api/v1/kerusakan</code></td><td>Admin</td><td>Buat kerusakan baru</td></tr>
+            <tr><td><span class="badge badge-yellow">PUT</span></td><td><code>/api/v1/kerusakan/{id}</code></td><td>Admin</td><td>Update kerusakan</td></tr>
+            <tr><td><span class="badge badge-red">DELETE</span></td><td><code>/api/v1/kerusakan/{id}</code></td><td>Admin</td><td>Hapus + cascade rules</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Rules (Basis Pengetahuan)</h3>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-get">GET</span>
+          <span class="endpoint-path">/api/v1/rules</span>
+        </div>
+        <div class="endpoint-body">
+          <p>List semua rule dengan detail gejala dan kerusakan (enriched response <code>RuleWithDetails</code>).</p>
+          <pre><code>[{
+  <span class="at">"id"</span>: <span class="st">"uuid"</span>,
+  <span class="at">"gejala_id"</span>: <span class="st">"..."</span>, <span class="at">"kerusakan_id"</span>: <span class="st">"..."</span>, <span class="at">"cf_pakar"</span>: <span class="nm">0.9</span>,
+  <span class="at">"gejala_kode"</span>: <span class="st">"G001"</span>, <span class="at">"gejala_pertanyaan"</span>: <span class="st">"Apakah laptop tidak menyala?"</span>,
+  <span class="at">"kerusakan_kode"</span>: <span class="st">"K003"</span>, <span class="at">"kerusakan_nama"</span>: <span class="st">"Adaptor Rusak"</span>
+}]</code></pre>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-post">POST</span>
+          <span class="endpoint-path">/api/v1/rules</span>
+          <span class="endpoint-auth">🔒 Admin</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Tambah rule baru. 400 jika pasangan gejala-kerusakan sudah ada.</p>
+          <pre><code>{ <span class="at">"gejala_id"</span>: <span class="st">"uuid"</span>, <span class="at">"kerusakan_id"</span>: <span class="st">"uuid"</span>, <span class="at">"cf_pakar"</span>: <span class="nm">0.85</span> }</code></pre>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-put">PUT</span>
+          <span class="endpoint-path">/api/v1/rules/{id}</span>
+          <span class="endpoint-auth">🔒 Admin</span>
+        </div>
+        <div class="endpoint-body"><p>Update nilai <code>cf_pakar</code> dari sebuah rule.</p></div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-del">DELETE</span>
+          <span class="endpoint-path">/api/v1/rules/{id}</span>
+          <span class="endpoint-auth">🔒 Admin</span>
+        </div>
+        <div class="endpoint-body"><p>Hapus satu rule. 204 No Content.</p></div>
+      </div>
+
+      <h3>History</h3>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-get">GET</span>
+          <span class="endpoint-path">/api/v1/history</span>
+          <span class="endpoint-auth">🔒 Admin</span>
+        </div>
+        <div class="endpoint-body">
+          <p>List riwayat diagnosis. Query params: <code>?skip=0&amp;limit=20</code>. Diurutkan <code>created_at DESC</code>.</p>
+        </div>
+      </div>
+
+      <h3>Health Check</h3>
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-get">GET</span>
+          <span class="endpoint-path">/health</span>
+        </div>
+        <div class="endpoint-body">
+          <pre><code>{ <span class="at">"status"</span>: <span class="st">"ok"</span>, <span class="at">"environment"</span>: <span class="st">"development"</span> }</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         AUTENTIKASI
+         ===================================================== -->
+    <section id="auth">
+      <h2>Autentikasi &amp; Otorisasi</h2>
+
+      <h3>Alur Autentikasi</h3>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-left"><div class="flow-circle">1</div><div class="flow-line"></div></div>
+          <div class="flow-content"><strong>Login via POST /api/v1/auth/login</strong><p>Form data: <code>username</code> + <code>password</code> (OAuth2PasswordRequestForm)</p></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-left"><div class="flow-circle">2</div><div class="flow-line"></div></div>
+          <div class="flow-content"><strong>Server verifikasi bcrypt + generate JWT</strong><p>Token berisi <code>{"sub": user_id, "is_admin": bool, "exp": ...}</code></p></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-left"><div class="flow-circle">3</div></div>
+          <div class="flow-content"><strong>Frontend simpan token di localStorage</strong><p>Axios interceptor otomatis kirim <code>Authorization: Bearer &lt;token&gt;</code></p></div>
+        </div>
+      </div>
+
+      <h3>Endpoint Auth</h3>
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-post">POST</span>
+          <span class="endpoint-path">/api/v1/auth/register</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Daftarkan user baru. 400 jika username/email sudah digunakan.</p>
+          <pre><code>{ <span class="at">"username"</span>: <span class="st">"admin"</span>, <span class="at">"email"</span>: <span class="st">"admin@email.com"</span>, <span class="at">"password"</span>: <span class="st">"password123"</span> }</code></pre>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-post">POST</span>
+          <span class="endpoint-path">/api/v1/auth/login</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Login dengan form data (application/x-www-form-urlencoded).</p>
+          <pre><code>{ <span class="at">"access_token"</span>: <span class="st">"eyJ..."</span>, <span class="at">"token_type"</span>: <span class="st">"bearer"</span>, <span class="at">"user"</span>: { <span class="cm">...</span> } }</code></pre>
+        </div>
+      </div>
+
+      <h3>Keamanan</h3>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Password Hashing</div>
+          <p>Menggunakan <strong>bcrypt</strong> via <code>passlib</code>. Password tidak pernah disimpan plaintext.</p>
+          <pre><code>hash_password(password)     <span class="cm"># bcrypt hash</span>
+verify_password(plain, hash)</code></pre>
+        </div>
+        <div class="card">
+          <div class="card-title">JWT Token</div>
+          <p>Token berlaku selama <code>ACCESS_TOKEN_EXPIRE_MINUTES</code> (default: 60 menit). Algoritma HS256.</p>
+          <pre><code>create_access_token({"sub": id})
+decode_token(token) → dict | None</code></pre>
+        </div>
+      </div>
+
+      <div class="callout callout-danger">
+        <div class="callout-icon">🔐</div>
+        <div>Semua endpoint CRUD gejala, kerusakan, rules, dan history dilindungi dengan <code>Depends(get_admin_user)</code>. Hanya user dengan <code>is_admin=True</code> yang bisa mengaksesnya.</div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         ARSITEKTUR FRONTEND
+         ===================================================== -->
+    <section id="frontend-arch">
+      <h2>Arsitektur Frontend</h2>
+      <p>Frontend dibangun dengan <strong>Next.js 14 App Router</strong>. Semua halaman interaktif menggunakan <code>"use client"</code> directive.</p>
+
+      <h3>Routing (App Router)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Route</th><th>File</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><code>/</code></td><td><code>app/page.tsx</code></td><td>Landing page dengan hero, fitur, CTA</td></tr>
+            <tr><td><code>/diagnosis</code></td><td><code>app/diagnosis/page.tsx</code></td><td>Wizard diagnosis interaktif + hasil</td></tr>
+            <tr><td><code>/login</code></td><td><code>app/(auth)/login/page.tsx</code></td><td>Halaman login admin</td></tr>
+            <tr><td><code>/register</code></td><td><code>app/(auth)/register/page.tsx</code></td><td>Registrasi akun baru</td></tr>
+            <tr><td><code>/admin/gejala</code></td><td><code>app/admin/gejala/page.tsx</code></td><td>CRUD gejala</td></tr>
+            <tr><td><code>/admin/kerusakan</code></td><td><code>app/admin/kerusakan/page.tsx</code></td><td>CRUD kerusakan</td></tr>
+            <tr><td><code>/admin/rules</code></td><td><code>app/admin/rules/page.tsx</code></td><td>CRUD rules/CF</td></tr>
+            <tr><td><code>/admin/history</code></td><td><code>app/admin/history/page.tsx</code></td><td>Riwayat diagnosis</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Axios Instance (<code>lib/api.ts</code>)</h3>
+      <pre><code><span class="kw">const</span> api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || <span class="st">"http://localhost:8000"</span>,
+  headers: { <span class="at">"Content-Type"</span>: <span class="st">"application/json"</span> },
+});
+
+<span class="cm">// Request interceptor — inject Bearer token</span>
+api.interceptors.request.use((config) => {
+  <span class="kw">const</span> token = localStorage.getItem(<span class="st">"token"</span>);
+  <span class="kw">if</span> (token) config.headers.Authorization = <span class="st">`Bearer ${token}`</span>;
+  <span class="kw">return</span> config;
+});
+
+<span class="cm">// Response interceptor — auto logout on 401</span>
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    <span class="kw">if</span> (err.response?.status === <span class="nm">401</span>) {
+      localStorage.removeItem(<span class="st">"token"</span>);
+      window.location.href = <span class="st">"/login"</span>;
+    }
+    <span class="kw">return</span> Promise.reject(err);
+  }
+);</code></pre>
+    </section>
+
+    <!-- =====================================================
+         KOMPONEN UTAMA
+         ===================================================== -->
+    <section id="komponen">
+      <h2>Komponen Utama</h2>
+
+      <h3>QuestionWizard</h3>
+      <p>Komponen wizard per kategori gejala (<code>components/diagnosis/QuestionWizard.tsx</code>).</p>
+      <div class="card">
+        <div class="card-title">Props</div>
+        <div class="table-wrap" style="margin:0">
+          <table>
+            <thead><tr><th>Prop</th><th>Type</th><th>Keterangan</th></tr></thead>
+            <tbody>
+              <tr><td><code>gejalaList</code></td><td><code>Gejala[]</code></td><td>Daftar semua gejala dari API</td></tr>
+              <tr><td><code>onSubmit</code></td><td><code>() => Promise&lt;void&gt;</code></td><td>Callback saat tombol "Lihat Hasil" ditekan</td></tr>
+              <tr><td><code>loading</code></td><td><code>boolean</code></td><td>Tampilkan spinner saat proses diagnosis</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p>Gejala dikelompokkan per <code>kategori</code> menggunakan <code>useMemo</code>. Navigasi antar kategori menggunakan tombol Sebelumnya/Selanjutnya. Jawaban disimpan ke Zustand store via <code>setAnswer(gejalaId, cfValue)</code>.</p>
+
+      <h3>DiagnosisResult</h3>
+      <p>Komponen hasil diagnosis (<code>components/diagnosis/DiagnosisResult.tsx</code>).</p>
+      <div class="card">
+        <div class="card-title">Props</div>
+        <div class="table-wrap" style="margin:0">
+          <table>
+            <thead><tr><th>Prop</th><th>Type</th><th>Keterangan</th></tr></thead>
+            <tbody>
+              <tr><td><code>hasil</code></td><td><code>DiagnosisItem[]</code></td><td>Array hasil diagnosis dari API</td></tr>
+              <tr><td><code>totalGejala</code></td><td><code>number</code></td><td>Jumlah gejala yang dijawab</td></tr>
+              <tr><td><code>sessionId</code></td><td><code>string</code></td><td>ID sesi untuk referensi</td></tr>
+              <tr><td><code>onReset</code></td><td><code>() => void</code></td><td>Callback untuk memulai diagnosis ulang</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p>Menampilkan kartu per kerusakan dengan CF bar visual, deskripsi, dan solusi. Kerusakan #1 diberi highlight border merah. Jika <code>hasil.length === 0</code>, tampilkan pesan "Tidak Ada Kerusakan Terdeteksi".</p>
+
+      <h3>CF Options (QuestionWizard)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Label</th><th>Value</th><th>Warna Tombol</th></tr></thead>
+          <tbody>
+            <tr><td>Ya</td><td><code>1.0</code></td><td><span class="badge badge-green">Hijau</span></td></tr>
+            <tr><td>Mungkin</td><td><code>0.6</code></td><td><span class="badge badge-blue">Biru</span></td></tr>
+            <tr><td>Tidak Tahu</td><td><code>0.0</code></td><td><span class="badge badge-gray">Abu-abu</span></td></tr>
+            <tr><td>Tidak</td><td><code>-1.0</code></td><td><span class="badge badge-red">Merah</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         STATE MANAGEMENT
+         ===================================================== -->
+    <section id="state">
+      <h2>State Management</h2>
+      <p>Menggunakan <strong>Zustand</strong> dengan dua store terpisah di <code>lib/store.ts</code>.</p>
+
+      <h3>useAuthStore</h3>
+      <p>Persisted ke <code>localStorage</code> via <code>zustand/middleware persist</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>State / Action</th><th>Type</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><code>user</code></td><td><code>User | null</code></td><td>Data user yang sedang login</td></tr>
+            <tr><td><code>token</code></td><td><code>string | null</code></td><td>JWT access token</td></tr>
+            <tr><td><code>setAuth(user, token)</code></td><td>action</td><td>Set user + token setelah login berhasil</td></tr>
+            <tr><td><code>clearAuth()</code></td><td>action</td><td>Hapus state + localStorage saat logout</td></tr>
+            <tr><td><code>isAdmin()</code></td><td><code>() => boolean</code></td><td>Cek apakah user adalah admin</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>useDiagnosisStore</h3>
+      <p>Tidak persisted — direset saat komponen memanggil <code>reset()</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>State / Action</th><th>Type</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><code>gejalaList</code></td><td><code>Gejala[]</code></td><td>Daftar gejala dari API</td></tr>
+            <tr><td><code>answers</code></td><td><code>Record&lt;string, number&gt;</code></td><td>Map gejalaId → cfUser</td></tr>
+            <tr><td><code>result</code></td><td><code>DiagnoseResponse | null</code></td><td>Hasil diagnosis dari API</td></tr>
+            <tr><td><code>setAnswer(id, cf)</code></td><td>action</td><td>Simpan jawaban user untuk satu gejala</td></tr>
+            <tr><td><code>getAnsweredInputs()</code></td><td><code>GejalaInput[]</code></td><td>Filter hanya jawaban dengan <code>cf !== 0</code></td></tr>
+            <tr><td><code>reset()</code></td><td>action</td><td>Bersihkan semua state untuk diagnosis ulang</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">ℹ️</div>
+        <div><code>getAnsweredInputs()</code> memfilter gejala dengan <code>cf_user = 0.0</code> agar tidak dikirim ke backend, karena jawaban "Tidak Tahu" tidak berkontribusi pada kalkulasi CF apapun.</div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         TYPESCRIPT TYPES
+         ===================================================== -->
+    <section id="types">
+      <h2>TypeScript Types</h2>
+      <p>Semua tipe data shared didefinisikan di <code>types/index.ts</code>.</p>
+      <pre><code><span class="kw">interface</span> <span class="cl">Gejala</span> {
+  id: string; kode: string; pertanyaan: string; kategori: string;
+}
+
+<span class="kw">interface</span> <span class="cl">Kerusakan</span> {
+  id: string; kode: string; nama: string;
+  deskripsi: string; solusi: string; kategori: string;
+}
+
+<span class="kw">interface</span> <span class="cl">Rule</span> {
+  id: string; gejala_id: string; kerusakan_id: string; cf_pakar: number;
+  gejala_kode?: string; gejala_pertanyaan?: string;
+  kerusakan_kode?: string; kerusakan_nama?: string;
+}
+
+<span class="kw">interface</span> <span class="cl">GejalaInput</span>    { gejala_id: string; cf_user: number; }
+
+<span class="kw">interface</span> <span class="cl">DiagnosisItem</span> {
+  kerusakan_id: string; kode: string; nama: string;
+  deskripsi: string; solusi: string; kategori: string; cf_total: number;
+}
+
+<span class="kw">interface</span> <span class="cl">DiagnoseResponse</span> {
+  session_id: string; hasil: DiagnosisItem[]; total_gejala: number;
+}
+
+<span class="kw">const</span> CF_USER_VALUES = {
+  ya: <span class="nm">1.0</span>, mungkin: <span class="nm">0.6</span>, tidak_tahu: <span class="nm">0.0</span>, tidak: <span class="nm">-1.0</span>
+} <span class="kw">as const</span>;
+
+<span class="kw">const</span> KATEGORI_LABELS: Record&lt;string, string&gt; = {
+  power: <span class="st">"Daya / Power"</span>, baterai: <span class="st">"Baterai"</span>, display: <span class="st">"Layar / Display"</span>,
+  overheating: <span class="st">"Overheat"</span>, storage: <span class="st">"Penyimpanan"</span>, keyboard: <span class="st">"Keyboard &amp; Touchpad"</span>,
+  audio: <span class="st">"Audio / Suara"</span>, konektivitas: <span class="st">"Konektivitas"</span>, port: <span class="st">"Port &amp; Konektor"</span>,
+  ram: <span class="st">"RAM / Memori"</span>, motherboard: <span class="st">"Motherboard"</span>,
+  cpu: <span class="st">"Prosesor (CPU)"</span>, gpu: <span class="st">"Kartu Grafis (GPU)"</span>,
+};</code></pre>
+    </section>
+
+    <!-- =====================================================
+         SETUP & INSTALASI
+         ===================================================== -->
+    <section id="setup">
+      <h2>Setup &amp; Instalasi</h2>
+
+      <h3>1. Setup Backend (FastAPI)</h3>
+      <pre><code><span class="cm"># Clone dan masuk ke direktori backend</span>
+cd SistemPakar_DiagnosisLaptop/backend
+
+<span class="cm"># Buat virtual environment</span>
+python -m venv .venv
+
+<span class="cm"># Aktivasi (Windows PowerShell)</span>
+.venv\Scripts\activate
+<span class="cm"># Aktivasi (Git Bash / Linux / Mac)</span>
+source .venv/Scripts/activate
+
+<span class="cm"># Install dependensi</span>
+pip install -r requirements.txt
+
+<span class="cm"># Buat file .env (salin dari contoh)</span>
+copy .env.example .env
+
+<span class="cm"># Jalankan server (tabel dibuat otomatis)</span>
+python -m uvicorn app.main:app --reload --port 8000</code></pre>
+
+      <div class="callout callout-success">
+        <div class="callout-icon">✅</div>
+        <div>Tabel database dibuat otomatis saat pertama kali server berjalan via <code>Base.metadata.create_all(bind=engine)</code> di <code>main.py</code>. Tidak perlu menjalankan migrasi secara manual untuk setup awal.</div>
+      </div>
+
+      <h3>2. Seed Knowledge Base</h3>
+      <pre><code><span class="cm"># Import gejala, kerusakan, dan rules dari knowledge_base.json</span>
+python -m app.seed
+
+<span class="cm"># Buat akun admin</span>
+python -m app.create_admin</code></pre>
+
+      <h3>3. Setup Frontend (Next.js)</h3>
+      <pre><code>cd SistemPakar_DiagnosisLaptop/frontend
+
+<span class="cm"># Install dependensi</span>
+pnpm install
+pnpm approve-builds     <span class="cm"># approve build scripts (sharp, dll)</span>
+
+<span class="cm"># Buat file environment</span>
+<span class="cm"># Buat file .env.local dengan isi: NEXT_PUBLIC_API_URL=http://localhost:8000</span>
+
+<span class="cm"># Jalankan dev server</span>
+pnpm dev</code></pre>
+
+      <h3>4. Database via Docker (Opsional — PostgreSQL)</h3>
+      <pre><code><span class="cm"># Dari root direktori</span>
+docker-compose up -d
+
+<span class="cm"># PostgreSQL berjalan di port 5432</span>
+<span class="cm"># pgAdmin berjalan di http://localhost:5050</span></code></pre>
+
+      <h3>Akses Aplikasi</h3>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Frontend</div>
+          <p><code>http://localhost:3000</code></p>
+          <p>Halaman utama, diagnosis wizard, panel admin</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Backend API</div>
+          <p><code>http://localhost:8000</code></p>
+          <p>Swagger UI: <code>/docs</code> · ReDoc: <code>/redoc</code></p>
+        </div>
+      </div>
+
+      <h3>Reset Password Admin</h3>
+      <pre><code>cd backend
+python -c "
+import app.models.gejala, app.models.kerusakan, app.models.rule
+import app.models.diagnosis_history, app.models.user
+from app.core.database import SessionLocal
+from app.models.user import User
+from passlib.context import CryptContext
+pwd = CryptContext(schemes=['bcrypt'])
+db = SessionLocal()
+u = db.query(User).filter(User.username == 'admin').first()
+u.hashed_password = pwd.hash('admin123')
+db.commit()
+print('Password direset ke: admin123')
+db.close()
+"</code></pre>
+    </section>
+
+    <!-- =====================================================
+         ENVIRONMENT VARIABLES
+         ===================================================== -->
+    <section id="env">
+      <h2>Environment Variables</h2>
+
+      <h3>Backend (<code>backend/.env</code>)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Variable</th><th>Default</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><code>DATABASE_URL</code></td><td><code>sqlite:///./sistem_pakar.db</code></td><td>URL koneksi database. Ganti ke PostgreSQL untuk prod.</td></tr>
+            <tr><td><code>SECRET_KEY</code></td><td><em>(harus diganti)</em></td><td>Secret key JWT. Minimal 32 karakter. Gunakan string acak.</td></tr>
+            <tr><td><code>ALGORITHM</code></td><td><code>HS256</code></td><td>Algoritma JWT. HS256 sudah cukup untuk produksi.</td></tr>
+            <tr><td><code>ACCESS_TOKEN_EXPIRE_MINUTES</code></td><td><code>60</code></td><td>Masa berlaku token JWT dalam menit.</td></tr>
+            <tr><td><code>ENVIRONMENT</code></td><td><code>development</code></td><td>Nilai <code>production</code> akan menonaktifkan <code>/docs</code> dan <code>/redoc</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre><code>DATABASE_URL=sqlite:///./sistem_pakar.db
+SECRET_KEY=ganti-dengan-secret-key-yang-kuat-dan-acak-minimal-32-karakter
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+ENVIRONMENT=development</code></pre>
+
+      <h3>Frontend (<code>frontend/.env.local</code>)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Variable</th><th>Default</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><code>NEXT_PUBLIC_API_URL</code></td><td><code>http://localhost:8000</code></td><td>Base URL backend FastAPI. Ubah ke domain produksi saat deploy.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre><code>NEXT_PUBLIC_API_URL=http://localhost:8000</code></pre>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">⚠️</div>
+        <div>Jangan commit file <code>.env</code> atau <code>.env.local</code> ke repository. Keduanya sudah ada di <code>.gitignore</code>. Gunakan <code>.env.example</code> sebagai template untuk tim.</div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         KNOWLEDGE BASE
+         ===================================================== -->
+    <section id="seed">
+      <h2>Knowledge Base &amp; Kategori Gejala</h2>
+      <p>Basis pengetahuan sistem pakar tersimpan di <code>backend/app/data/knowledge_base.json</code> dan diimport ke database via <code>seed.py</code>. Sumber referensi mencakup manual servis Dell, HP, Lenovo, panduan iFixit, dan CompTIA A+ Study Guide.</p>
+
+      <h3>Kategori Gejala &amp; Kerusakan</h3>
+      <div class="cat-grid">
+        <div class="cat-chip" style="color:#1d4ed8;border-color:#bfdbfe;background:#eff6ff">Power / Daya</div>
+        <div class="cat-chip" style="color:#15803d;border-color:#bbf7d0;background:#f0fdf4">Baterai</div>
+        <div class="cat-chip" style="color:#7e22ce;border-color:#e9d5ff;background:#faf5ff">Display / Layar</div>
+        <div class="cat-chip" style="color:#c2410c;border-color:#fed7aa;background:#fff7ed">Overheating</div>
+        <div class="cat-chip" style="color:#1e40af;border-color:#bfdbfe;background:#eff6ff">Storage</div>
+        <div class="cat-chip" style="color:#9a3412;border-color:#fed7aa;background:#fff7ed">Keyboard & Touchpad</div>
+        <div class="cat-chip" style="color:#065f46;border-color:#a7f3d0;background:#ecfdf5">Audio</div>
+        <div class="cat-chip" style="color:#1d4ed8;border-color:#bfdbfe;background:#eff6ff">Konektivitas</div>
+        <div class="cat-chip" style="color:#6d28d9;border-color:#ddd6fe;background:#f5f3ff">Port &amp; Konektor</div>
+        <div class="cat-chip" style="color:#dc2626;border-color:#fecaca;background:#fef2f2">RAM / Memori</div>
+        <div class="cat-chip" style="color:#374151;border-color:#d1d5db;background:#f9fafb">Motherboard</div>
+        <div class="cat-chip" style="color:#92400e;border-color:#fde68a;background:#fffbeb">CPU</div>
+        <div class="cat-chip" style="color:#1e3a8a;border-color:#bfdbfe;background:#eff6ff">GPU</div>
+      </div>
+
+      <h3>Contoh Gejala per Kategori</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kode</th><th>Pertanyaan</th><th>Kategori</th></tr></thead>
+          <tbody>
+            <tr><td><code>G001</code></td><td>Apakah laptop/PC sama sekali tidak menyala ketika tombol power ditekan?</td><td><span class="badge badge-blue">power</span></td></tr>
+            <tr><td><code>G009</code></td><td>Apakah baterai tidak terdeteksi oleh sistem operasi (tidak ada ikon baterai)?</td><td><span class="badge badge-green">baterai</span></td></tr>
+            <tr><td><code>G014</code></td><td>Apakah layar sama sekali tidak menampilkan gambar (blank/hitam total)?</td><td><span class="badge badge-purple">display</span></td></tr>
+            <tr><td><code>G022</code></td><td>Apakah laptop terasa sangat panas terutama di area bawah atau sekitar keyboard?</td><td><span class="badge badge-orange">overheating</span></td></tr>
+            <tr><td><code>G029</code></td><td>Apakah laptop/PC tidak bisa melakukan booting (tidak masuk ke sistem operasi)?</td><td><span class="badge badge-gray">storage</span></td></tr>
+            <tr><td><code>G054</code></td><td>Apakah terdengar bunyi beep berulang saat laptop/PC dinyalakan (POST beep code)?</td><td><span class="badge badge-red">ram</span></td></tr>
+            <tr><td><code>G059</code></td><td>Apakah ada bau terbakar atau asap yang muncul dari laptop/PC?</td><td><span class="badge badge-gray">motherboard</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Constraint Sistem</h3>
+      <div class="grid-3">
+        <div class="card" style="text-align:center;border-top:4px solid var(--primary)">
+          <div style="font-size:32px;font-weight:800;color:var(--primary)">0.2</div>
+          <div style="font-size:13px;color:var(--gray-500)">CF Threshold Minimum</div>
+        </div>
+        <div class="card" style="text-align:center;border-top:4px solid var(--success)">
+          <div style="font-size:32px;font-weight:800;color:var(--success)">5</div>
+          <div style="font-size:13px;color:var(--gray-500)">Maks. Hasil Diagnosis</div>
+        </div>
+        <div class="card" style="text-align:center;border-top:4px solid var(--warning)">
+          <div style="font-size:32px;font-weight:800;color:var(--warning)">20</div>
+          <div style="font-size:13px;color:var(--gray-500)">Maks. Gejala per Sesi</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         KONVENSI KODE
+         ===================================================== -->
+    <section id="konvensi">
+      <h2>Konvensi Kode</h2>
+
+      <div class="grid-2">
+        <div>
+          <h3>TypeScript / Next.js</h3>
+          <ul>
+            <li>Gunakan <strong>App Router</strong> (bukan Pages Router)</li>
+            <li>Semua komponen UI pakai <code>shadcn/ui</code> terlebih dahulu</li>
+            <li>API calls hanya di <code>lib/api.ts</code>, tidak inline di komponen</li>
+            <li>Tipe data shared di <code>types/index.ts</code></li>
+            <li>Gunakan <code>"use client"</code> hanya bila perlu (hooks, interaktivitas)</li>
+            <li>Nama file komponen: <strong>PascalCase</strong> (<code>QuestionWizard.tsx</code>)</li>
+            <li>Nama file utils/lib: <strong>camelCase</strong> (<code>api.ts</code>, <code>store.ts</code>)</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Python / FastAPI</h3>
+          <ul>
+            <li>Semua endpoint menggunakan <code>async/await</code></li>
+            <li>Schema Pydantic terpisah dari ORM model</li>
+            <li>Dependency injection via <code>Depends()</code> untuk DB session dan auth</li>
+            <li>Response selalu menggunakan schema Pydantic, bukan raw dict</li>
+            <li>Error menggunakan <code>HTTPException</code> dengan status code tepat</li>
+            <li>Nama file: <strong>snake_case</strong> (<code>forward_chain.py</code>)</li>
+            <li>Linter: Ruff + Black</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Alur Penambahan Fitur Baru</h3>
+      <ol>
+        <li>Tambah model SQLAlchemy di <code>backend/app/models/</code></li>
+        <li>Tambah Pydantic schema di <code>backend/app/schemas/</code></li>
+        <li>Tambah endpoint di <code>backend/app/api/v1/</code> dan daftarkan ke <code>router.py</code></li>
+        <li>Tambah TypeScript interface di <code>frontend/types/index.ts</code></li>
+        <li>Tambah fungsi API di <code>frontend/lib/api.ts</code></li>
+        <li>Buat halaman/komponen di <code>frontend/app/</code> atau <code>frontend/components/</code></li>
+      </ol>
+    </section>
+
+    <!-- =====================================================
+         GLOSARIUM
+         ===================================================== -->
+    <section id="glosarium">
+      <h2>Glosarium Domain</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Istilah</th><th>Makna</th></tr></thead>
+          <tbody>
+            <tr><td><code>gejala</code></td><td>Symptom hardware yang dialami user — ditanyakan satu per satu selama proses diagnosis</td></tr>
+            <tr><td><code>kerusakan</code></td><td>Jenis kerusakan hardware yang didiagnosis oleh sistem (mis. "Adaptor Rusak", "RAM Bermasalah")</td></tr>
+            <tr><td><code>rule</code></td><td>Relasi antara satu gejala dengan satu kerusakan, disertai nilai kepercayaan pakar (<code>cf_pakar</code>)</td></tr>
+            <tr><td><code>cf_pakar</code></td><td>Certainty Factor dari pakar — nilai antara 0.0 dan 1.0 yang merepresentasikan seberapa kuat gejala menunjuk ke kerusakan tersebut</td></tr>
+            <tr><td><code>cf_user</code></td><td>Certainty Factor dari jawaban user — Ya=1.0, Mungkin=0.6, Tidak Tahu=0.0, Tidak=−1.0</td></tr>
+            <tr><td><code>cf_combined</code></td><td>Hasil perkalian <code>cf_pakar × cf_user</code> — kontribusi satu gejala terhadap satu kerusakan</td></tr>
+            <tr><td><code>cf_total</code></td><td>CF akhir setelah semua gejala digabungkan via <code>merge_cf_list()</code> untuk satu kerusakan tertentu</td></tr>
+            <tr><td><code>diagnosis</code></td><td>Proses inferensi lengkap: dari input gejala → running CF → output hasil terurut</td></tr>
+            <tr><td><code>solusi</code></td><td>Langkah perbaikan yang disarankan untuk setiap kerusakan yang terdeteksi</td></tr>
+            <tr><td><code>session_id</code></td><td>UUID unik per sesi diagnosis — digunakan untuk tracking riwayat</td></tr>
+            <tr><td><code>knowledge base</code></td><td>Kumpulan gejala, kerusakan, dan rules yang merepresentasikan pengetahuan pakar hardware</td></tr>
+            <tr><td><code>forward chaining</code></td><td>Strategi inferensi berbasis data — dimulai dari fakta (gejala yang dipilih) menuju kesimpulan (kerusakan)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-info" style="margin-top:32px">
+        <div class="callout-icon">📖</div>
+        <div>
+          <strong>Referensi Knowledge Base:</strong> iFixit Repair Guides, Dell/HP/Lenovo Official Service Manuals, Tom's Hardware Troubleshooting Guides, PC Magazine Hardware Diagnostics, CompTIA A+ Core 1 (220-1101) Study Guide.
+        </div>
+      </div>
+    </section>
+
+  </div><!-- end .main-body -->
+</div><!-- end #content -->
+
+<script>
+  // Active sidebar link on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('#sidebar nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + entry.target.id) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
