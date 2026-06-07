@@ -22,7 +22,11 @@ const navItems = [
   { href: "/admin/history", label: "Riwayat", icon: Clock },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, token, clearAuth } = useAuthStore();
@@ -37,7 +41,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   function handleLogout() {
     clearAuth();
-    router.push("/");
+
+    // paksa pindah ke homepage
+    window.location.replace("/");
   }
 
   return (
@@ -48,6 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Cpu className="w-6 h-6 text-primary" />
           <span className="font-bold">Admin Panel</span>
         </div>
+
         <nav className="flex-1 p-4 space-y-1">
           {navItems.map(({ href, label, icon: Icon }) => (
             <Link
@@ -65,12 +72,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Link>
           ))}
         </nav>
+
         <div className="p-4 border-t">
           <div className="text-xs text-muted-foreground mb-3">
-            Login sebagai <span className="font-semibold text-foreground">{user.username}</span>
+            Login sebagai{" "}
+            <span className="font-semibold text-foreground">
+              {user.username}
+            </span>
           </div>
-          <Button variant="outline" size="sm" className="w-full" onClick={handleLogout}>
-            <LogOut className="w-4 h-4 mr-2" /> Logout
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={handleLogout}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
           </Button>
         </div>
       </aside>
