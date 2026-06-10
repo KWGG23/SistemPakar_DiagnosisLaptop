@@ -1,5 +1,4 @@
-"use client";
-
+// lib/store.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { DiagnoseResponse, Gejala, GejalaInput, User } from "@/types";
@@ -38,10 +37,10 @@ export const useAuthStore = create<AuthState>()(
 interface DiagnosisState {
   gejalaList: Gejala[];
   answers: Record<string, number>;
-  result: DiagnoseResponse | null;
+  result: DiagnoseResponse | null;  // ← UBAH: tambahkan | null
   setGejalaList: (list: Gejala[]) => void;
   setAnswer: (gejalaId: string, cfUser: number) => void;
-  setResult: (result: DiagnoseResponse) => void;
+  setResult: (result: DiagnoseResponse | null) => void;  // ← UBAH: parameter bisa null
   getAnsweredInputs: () => GejalaInput[];
   reset: () => void;
 }
@@ -49,16 +48,16 @@ interface DiagnosisState {
 export const useDiagnosisStore = create<DiagnosisState>((set, get) => ({
   gejalaList: [],
   answers: {},
-  result: null,
+  result: null,  // ← UBAH: set ke null instead of undefined
   setGejalaList: (list) => set({ gejalaList: list }),
   setAnswer: (gejalaId, cfUser) =>
     set((state) => ({ answers: { ...state.answers, [gejalaId]: cfUser } })),
-  setResult: (result) => set({ result }),
+  setResult: (result) => set({ result }),  // ← UBAH: sekarang bisa terima null
   getAnsweredInputs: () => {
     const { answers } = get();
     return Object.entries(answers)
       .filter(([, cf]) => cf !== 0.0)
       .map(([gejala_id, cf_user]) => ({ gejala_id, cf_user }));
   },
-  reset: () => set({ gejalaList: [], answers: {}, result: null }),
+  reset: () => set({ gejalaList: [], answers: {}, result: null }),  // ← UBAH: set ke null
 }));

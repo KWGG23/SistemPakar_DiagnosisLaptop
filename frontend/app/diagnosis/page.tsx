@@ -1,19 +1,41 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Cpu, Filter, X, Layers } from "lucide-react";
+import dynamic from "next/dynamic";
+import { ArrowLeft, Cpu, Filter, X, Layers, Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import QuestionWizard from "@/components/diagnosis/QuestionWizard";
-import DiagnosisResult from "@/components/diagnosis/DiagnosisResult";
-import MultiCategorySelector from "@/components/diagnosis/MultiCategorySelector";
-import { gejalaApi, diagnosisApi } from "@/lib/api";
 import { useDiagnosisStore } from "@/lib/store";
+import { getGejalaByCategories } from "@/lib/gejalaCache";
 import { KATEGORI_LABELS, type Gejala } from "@/types";
+import { diagnosisApi } from "@/lib/api";
 
-// Loading component for Suspense
+// Dynamic imports
+const MultiCategorySelector = dynamic(
+  () => import("@/components/diagnosis/MultiCategorySelector"),
+  { ssr: false, loading: () => <LoadingSpinner /> }
+);
+
+const QuestionWizard = dynamic(
+  () => import("@/components/diagnosis/QuestionWizard"),
+  { ssr: false, loading: () => <LoadingSpinner /> }
+);
+
+const DiagnosisResult = dynamic(
+  () => import("@/components/diagnosis/DiagnosisResult"),
+  { ssr: false, loading: () => <LoadingSpinner /> }
+);
+
+function LoadingSpinner() {
+  return (
+    <div className="flex justify-center py-12">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  );
+}
+
 function DiagnosisPageSkeleton() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -24,68 +46,55 @@ function DiagnosisPageSkeleton() {
         </div>
       </nav>
       <main className="max-w-5xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-center py-32">
-          <div className="text-center space-y-3">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-muted-foreground">Memuat halaman diagnosis...</p>
-          </div>
-        </div>
+        <LoadingSpinner />
       </main>
     </div>
   );
 }
 
-// Main component that uses useSearchParams
 function DiagnosisContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
   const categoriesParam = searchParams.get("categories");
   
-  // Single category atau multi categories
   const selectedCategories = (() => {
-    if (categoriesParam) {
-      return categoriesParam.split(",");
-    }
+    if (categoriesParam) return categoriesParam.split(",");
     return categoryParam ? [categoryParam] : [];
   })();
   
   const [gejalaList, setGejalaList] = useState<Gejala[]>([]);
   const [loading, setLoading] = useState(false);
-  const [fetching, setFetching] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState(false);
   const [showSelector, setShowSelector] = useState(!categoryParam && !categoriesParam);
-
+  
   const { result, setResult, getAnsweredInputs, reset, answers } = useDiagnosisStore();
+  const isInitialMount = useRef(true);
+  const isDataLoaded = useRef(false);
 
-  // Load gejala berdasarkan kategori yang dipilih (multiple)
+  // Load gejala data - only once
   useEffect(() => {
-    if (selectedCategories.length === 0) return;
+    if (selectedCategories.length === 0) {
+      setIsReady(true);
+      return;
+    }
     
-    const loadGejala = async () => {
-      setFetching(true);
+    if (isDataLoaded.current) return;
+    
+    const loadData = async () => {
       try {
-        const allGejala: Gejala[] = [];
-        
-        for (const cat of selectedCategories) {
-          const res = await gejalaApi.list(cat);
-          allGejala.push(...res.data);
-        }
-        
-        // Remove duplicates (if any)
-        const uniqueGejala = Array.from(
-          new Map(allGejala.map(g => [g.id, g])).values()
-        );
-        
-        setGejalaList(uniqueGejala);
-      } catch {
+        const data = await getGejalaByCategories(selectedCategories);
+        setGejalaList(data);
+        isDataLoaded.current = true;
+      } catch (err) {
         setError("Gagal memuat daftar gejala. Pastikan server backend berjalan.");
       } finally {
-        setFetching(false);
+        setIsReady(true);
       }
     };
     
-    loadGejala();
+    loadData();
   }, [selectedCategories]);
 
   async function handleSubmit() {
@@ -105,19 +114,28 @@ function DiagnosisContent() {
 
   function handleReset() {
     reset();
+    setResult(null);
     setShowSelector(true);
+    setError(null);
+    isDataLoaded.current = false;
+    setGejalaList([]);
   }
 
   function handleMultiCategorySelect(categories: string[]) {
-    const categoriesParam = categories.join(",");
-    router.push(`/diagnosis?categories=${categoriesParam}`);
+    if (!categories.length) return;
+    router.push(`/diagnosis?categories=${categories.join(",")}`);
     setShowSelector(false);
+    setResult(null);
+    isDataLoaded.current = false;
   }
 
   function clearFilter() {
     router.push("/diagnosis");
     setShowSelector(true);
     reset();
+    setResult(null);
+    isDataLoaded.current = false;
+    setGejalaList([]);
   }
 
   function removeCategory(categoryToRemove: string) {
@@ -126,16 +144,46 @@ function DiagnosisContent() {
       clearFilter();
     } else {
       router.push(`/diagnosis?categories=${newCategories.join(",")}`);
+      isDataLoaded.current = false;
     }
   }
 
   const answeredCount = Object.values(answers).filter(v => v !== 0.0 && v !== undefined).length;
   const totalGejala = gejalaList.length;
   const isMulti = selectedCategories.length > 1;
+  const hasCategories = selectedCategories.length > 0;
+
+  // Show selector
+  if (showSelector && !result) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+        <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+          <div className="max-w-5xl mx-auto px-4 h-16 flex items-center gap-4">
+            <Link href="/">
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+            </Link>
+            <div className="flex items-center gap-2">
+              <Cpu className="w-5 h-5 text-primary" />
+              <span className="font-semibold">Diagnosis Kerusakan</span>
+            </div>
+          </div>
+        </nav>
+        <main className="max-w-5xl mx-auto px-4 py-8">
+          <MultiCategorySelector onSelect={handleMultiCategorySelect} />
+        </main>
+      </div>
+    );
+  }
+
+  // Still loading
+  if (!isReady) {
+    return <DiagnosisPageSkeleton />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Navbar */}
       <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -147,13 +195,12 @@ function DiagnosisContent() {
             <div className="flex items-center gap-2">
               <Cpu className="w-5 h-5 text-primary" />
               <span className="font-semibold">
-                {isMulti ? "Diagnosis Multi Masalah" : "Diagnosis Kerusakan"}
+                {result ? "Hasil Diagnosis" : (isMulti ? "Diagnosis Multi Masalah" : "Diagnosis Kerusakan")}
               </span>
             </div>
           </div>
           
-          {/* Selected Categories Badges */}
-          {selectedCategories.length > 0 && (
+          {hasCategories && !result && (
             <div className="flex items-center gap-2 flex-wrap justify-end">
               <Layers className="w-4 h-4 text-muted-foreground" />
               {selectedCategories.map(cat => (
@@ -176,32 +223,32 @@ function DiagnosisContent() {
       </nav>
 
       <main className="max-w-5xl mx-auto px-4 py-8">
-        {showSelector && !result ? (
-          <MultiCategorySelector onSelect={handleMultiCategorySelect} />
-        ) : fetching ? (
-          <div className="flex items-center justify-center py-32">
-            <div className="text-center space-y-3">
-              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-muted-foreground">Memuat pertanyaan dari {selectedCategories.length} kategori...</p>
-            </div>
-          </div>
-        ) : error ? (
+        {error ? (
           <div className="max-w-md mx-auto text-center py-16">
+            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-8 h-8 text-red-500" />
+            </div>
             <p className="text-red-500 mb-4">{error}</p>
             <Button onClick={() => window.location.reload()}>Coba Lagi</Button>
           </div>
         ) : result ? (
           <DiagnosisResult
-            hasil={result.hasil}
-            totalGejala={result.total_gejala}
-            sessionId={result.session_id}
+            hasil={result.hasil || []}
+            totalGejala={result.total_gejala || 0}
+            sessionId={result.session_id || ""}
             onReset={handleReset}
             currentCategory={isMulti ? undefined : selectedCategories[0]}
             isMultiMode={isMulti}
           />
+        ) : totalGejala === 0 && hasCategories ? (
+          <div className="text-center py-16">
+            <p className="text-muted-foreground">Tidak ada gejala yang tersedia untuk kategori ini.</p>
+            <Button onClick={clearFilter} className="mt-4">
+              Kembali ke Pemilihan Kategori
+            </Button>
+          </div>
         ) : (
           <div className="space-y-6">
-            {/* Header */}
             <div className="text-center">
               <h1 className="text-2xl font-bold">
                 {isMulti 
@@ -211,17 +258,10 @@ function DiagnosisContent() {
               </h1>
               <p className="text-muted-foreground mt-1">
                 {isMulti
-                  ? `Jawab pertanyaan berikut untuk mengidentifikasi masalah pada ${selectedCategories.length} kategori yang dipilih`
+                  ? `Jawab pertanyaan berikut untuk mengidentifikasi masalah pada ${selectedCategories.length} kategori`
                   : "Pilih jawaban yang paling sesuai untuk setiap gejala"
                 }
               </p>
-              {isMulti && (
-                <p className="text-sm text-blue-600 mt-2">
-                  Menampilkan {totalGejala} gejala dari kategori: {selectedCategories.map(c => KATEGORI_LABELS[c]).join(", ")}
-                  <br />
-                  {answeredCount} dari {totalGejala} sudah dijawab
-                </p>
-              )}
             </div>
             
             <QuestionWizard
@@ -239,7 +279,6 @@ function DiagnosisContent() {
   );
 }
 
-// Main page component with Suspense boundary
 export default function DiagnosisPage() {
   return (
     <Suspense fallback={<DiagnosisPageSkeleton />}>
