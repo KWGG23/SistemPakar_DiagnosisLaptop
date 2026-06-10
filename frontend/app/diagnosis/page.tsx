@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Cpu, Filter, X, Layers } from "lucide-react";
@@ -13,19 +13,42 @@ import { gejalaApi, diagnosisApi } from "@/lib/api";
 import { useDiagnosisStore } from "@/lib/store";
 import { KATEGORI_LABELS, type Gejala } from "@/types";
 
-export default function DiagnosisPage() {
+// Loading component for Suspense
+function DiagnosisPageSkeleton() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center gap-4">
+          <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
+          <div className="w-32 h-6 bg-gray-200 rounded animate-pulse" />
+        </div>
+      </nav>
+      <main className="max-w-5xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-center py-32">
+          <div className="text-center space-y-3">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-muted-foreground">Memuat halaman diagnosis...</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// Main component that uses useSearchParams
+function DiagnosisContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
   const categoriesParam = searchParams.get("categories");
   
   // Single category atau multi categories
-  const selectedCategories = useMemo(() => {
+  const selectedCategories = (() => {
     if (categoriesParam) {
       return categoriesParam.split(",");
     }
     return categoryParam ? [categoryParam] : [];
-  }, [categoryParam, categoriesParam]);
+  })();
   
   const [gejalaList, setGejalaList] = useState<Gejala[]>([]);
   const [loading, setLoading] = useState(false);
@@ -106,7 +129,7 @@ export default function DiagnosisPage() {
     }
   }
 
-  const answeredCount = Object.values(answers).filter(v => v !== 0.0).length;
+  const answeredCount = Object.values(answers).filter(v => v !== 0.0 && v !== undefined).length;
   const totalGejala = gejalaList.length;
   const isMulti = selectedCategories.length > 1;
 
@@ -213,5 +236,14 @@ export default function DiagnosisPage() {
         )}
       </main>
     </div>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function DiagnosisPage() {
+  return (
+    <Suspense fallback={<DiagnosisPageSkeleton />}>
+      <DiagnosisContent />
+    </Suspense>
   );
 }
